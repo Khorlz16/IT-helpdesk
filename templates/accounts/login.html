@@ -1,0 +1,48 @@
+﻿{% extends 'base.html' %}
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <div class="text-center mb-4">
+            <img src="https://i.imgur.com/07jjV2W.jpeg" class="login-logo" alt="PZ Cussons Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+            <span class="logo-fallback" style="display:none;">PZ</span>
+            <h2 class="login-title">IT Helpdesk</h2>
+            <p class="text-muted">Sign in</p>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="id_username" class="form-label">PZC</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-id-badge"></i></span>
+                    {{ form.username }}
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="password-field" class="form-label">Password</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                    {{ form.password }}
+                    <button class="btn btn-outline-secondary" type="button" id="toggle-password">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 mt-3">Login</button>
+        </form>
+    </div>
+</div>
+<script>
+document.getElementById('toggle-password').addEventListener('click', function() {
+    const pwd = document.getElementById('password-field');
+    const icon = this.querySelector('i');
+    // Show password
+    pwd.type = 'text';
+    icon.classList.replace('fa-eye', 'fa-eye-slash');
+    // Auto-hide after 1 second
+    setTimeout(() => {
+        pwd.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+    }, 1000);
+});
+</script>
+{% endblock %}

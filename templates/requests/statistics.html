@@ -1,0 +1,140 @@
+﻿{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="dashboard-title"><i class="fas fa-chart-pie"></i> Admin Statistics</h2>
+<p class="dashboard-subtitle">Operational overview across all helpdesk requests.</p>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header"><i class="fas fa-chart-donut me-2"></i>Requests by Status</div>
+            <div class="card-body">
+                <canvas id="statusChart" height="220"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header"><i class="fas fa-chart-bar me-2"></i>Requests by Category</div>
+            <div class="card-body">
+                <canvas id="categoryChart" height="220"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header"><i class="fas fa-tools me-2"></i>Equipment Requests Summary</div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead><tr><th>Item</th><th>Qty</th><th>Requests</th></tr></thead>
+                        <tbody>
+                            {% for row in equipment_summary %}
+                            <tr><td>{{ row.item_name }}</td><td>{{ row.total_quantity }}</td><td>{{ row.request_count }}</td></tr>
+                            {% empty %}
+                            <tr><td colspan="3" class="text-center py-4">No equipment requested.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header"><i class="fas fa-briefcase me-2"></i>IT Staff Workload</div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead><tr><th>Staff</th><th>Assigned</th><th>In Progress</th><th>Completed</th></tr></thead>
+                        <tbody>
+                            {% for staff in it_staff_workload %}
+                            <tr><td>{{ staff.get_full_name }} ({{ staff.username }})</td><td>{{ staff.assigned_count }}</td><td>{{ staff.in_progress_count }}</td><td>{{ staff.completed_count }}</td></tr>
+                            {% empty %}
+                            <tr><td colspan="4" class="text-center py-4">No staff assigned.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header"><i class="fas fa-building me-2"></i>Requests by Branch</div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead><tr><th>Branch</th><th>Count</th></tr></thead>
+                        <tbody>
+                            {% for row in branch_counts %}
+                            <tr><td>{{ row.requester__branch__name|default:"Unknown" }}</td><td>{{ row.count }}</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header"><i class="fas fa-sitemap me-2"></i>Requests by Department</div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead><tr><th>Department</th><th>Count</th></tr></thead>
+                        <tbody>
+                            {% for row in department_counts %}
+                            <tr><td>{{ row.requester__department__name|default:"Unknown" }}</td><td>{{ row.count }}</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const statusData = {
+  labels: [{% for row in status_counts %}'{{ row.status_display|escapejs }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+  values: [{% for row in status_counts %}{{ row.count }}{% if not forloop.last %}, {% endif %}{% endfor %}]
+};
+const categoryData = {
+  labels: [{% for row in category_counts %}'{{ row.category__name|escapejs }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+  values: [{% for row in category_counts %}{{ row.count }}{% if not forloop.last %}, {% endif %}{% endfor %}]
+};
+
+new Chart(document.getElementById('statusChart'), {
+  type: 'doughnut',
+  data: {
+    labels: statusData.labels,
+    datasets: [{
+      data: statusData.values,
+      backgroundColor: ['#C8102E','#1E3A8A','#DBEAFE','#FDE68A','#D1FAE5','#E5E7EB','#FEE2E2','#FEF3C7','#E0E7FF']
+    }]
+  },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+});
+
+new Chart(document.getElementById('categoryChart'), {
+  type: 'bar',
+  data: {
+    labels: categoryData.labels,
+    datasets: [{
+      label: 'Requests',
+      data: categoryData.values,
+      backgroundColor: '#1E3A8A'
+    }]
+  },
+  options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+});
+</script>
+{% endblock %}

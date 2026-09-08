@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PZ IT Helpdesk</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    {% if user.is_authenticated %}
+    <nav class="navbar navbar-expand-sm navbar-dark pz-navbar p-0">
+        <div class="container-fluid p-0">
+            <div class="navbar-white-section d-flex align-items-center justify-content-center px-3">
+                <a class="navbar-brand d-flex align-items-center" href="{% url 'requests:dashboard' %}">
+                    <img src="https://i.imgur.com/07jjV2W.jpeg" class="logo-img" alt="PZ Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <span class="logo-fallback" style="display:none;">PZ</span>
+                </a>
+            </div>
+
+            <div class="navbar-blue-section d-flex align-items-center flex-grow-1 px-3">
+                <a class="brand-text me-3" href="{% url 'requests:dashboard' %}">IT Helpdesk</a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto align-items-center">
+                        <li class="nav-item"><a class="nav-link" href="{% url 'requests:create_request' %}"><i class="fas fa-plus-circle me-1"></i>New Request</a></li>
+
+                        {% if user.is_employee %}
+                            <li class="nav-item"><a class="nav-link" href="{% url 'requests:request_list' %}"><i class="fas fa-list me-1"></i>My Requests</a></li>
+                        {% elif user.is_it_staff %}
+                            <li class="nav-item"><a class="nav-link" href="{% url 'requests:request_list' %}"><i class="fas fa-tasks me-1"></i>Assigned Requests</a></li>
+                        {% elif user.is_it_admin %}
+                            <li class="nav-item"><a class="nav-link" href="{% url 'requests:request_list' %}"><i class="fas fa-list me-1"></i>All Requests</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{% url 'requests:statistics' %}"><i class="fas fa-chart-pie me-1"></i>Statistics</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{% url 'accounts:admin_user_list' %}"><i class="fas fa-users-cog me-1"></i>Manage Accounts</a></li>
+                        {% endif %}
+                    </ul>
+
+                    <ul class="navbar-nav align-items-center">
+                        <li class="nav-item me-2">
+                            <a class="nav-link notification-bell" href="{% url 'requests:notification_list' %}">
+                                <i class="fas fa-bell"></i>
+                                {% if unread_notifications_count > 0 %}
+                                    <span class="notification-badge">{{ unread_notifications_count }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li class="nav-item me-2">
+                            <a class="nav-link d-flex align-items-center" href="{% url 'accounts:profile' %}" title="Profile">
+                                {% if user.avatar %}
+                                    <img src="{{ user.avatar.url }}" alt="Profile" class="nav-avatar">
+                                {% else %}
+                                    <span class="nav-avatar-fallback">{{ user.get_full_name|default:user.pzc|slice:':1'|upper }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'accounts:logout' %}" title="Logout" onclick="return confirm('Are you sure you want to log out?');">
+                                <i class="fas fa-sign-out-alt fa-lg"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <main class="container py-4">
+    {% else %}
+    <main class="login-main">
+    {% endif %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    {% if user.is_authenticated and latest_notification %}
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+        <div id="notificationToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+            <div class="toast-header">
+                <i class="fas fa-bell me-2 text-danger"></i>
+                <strong class="me-auto">New Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                {{ latest_notification.message }}
+                <a href="{% url 'requests:mark_notification_read' latest_notification.pk %}" class="btn btn-sm btn-primary ms-2">View</a>
+            </div>
+        </div>
+    </div>
+    <script>
+        window.addEventListener('load', function() {
+            var toastEl = document.getElementById('notificationToast');
+            if (!toastEl) return;
+
+            var toast = new bootstrap.Toast(toastEl);
+            toast.show();
+
+            fetch('{% url "requests:mark_notification_read_ajax" latest_notification.pk %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }).catch(function () {});
+
+            toastEl.addEventListener('hidden.bs.toast', function () {
+                fetch('{% url "requests:mark_notification_read_ajax" latest_notification.pk %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                }).catch(function () {});
+            }, { once: true });
+        });
+    </script>
+    {% endif %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

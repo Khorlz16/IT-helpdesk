@@ -1,0 +1,74 @@
+﻿{% extends 'base.html' %}
+{% block content %}
+<h2 class="dashboard-title"><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h2>
+<p class="dashboard-subtitle">Real-time overview of IT requests</p>
+<div class="row g-3">
+    <div class="col-md-3 col-sm-6">
+        <div class="stat-card">
+            <div class="stat-icon blue"><i class="fas fa-clipboard-list"></i></div>
+            <div class="stat-info">
+                <div class="stat-number">{{ total }}</div>
+                <div class="stat-label">Total Requests</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="stat-card">
+            <div class="stat-icon blue"><i class="fas fa-hourglass-half"></i></div>
+            <div class="stat-info">
+                <div class="stat-number">{{ pending }}</div>
+                <div class="stat-label">Pending</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="stat-card">
+            <div class="stat-icon blue"><i class="fas fa-spinner"></i></div>
+            <div class="stat-info">
+                <div class="stat-number">{{ in_progress }}</div>
+                <div class="stat-label">In Progress</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="stat-card">
+            <div class="stat-icon blue"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-info">
+                <div class="stat-number">{{ closed }}</div>
+                <div class="stat-label">Closed</div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-history me-2"></i>Recent Requests</span>
+                <a href="{% url 'requests:request_list' %}" class="btn btn-view-all">View All</a>
+            </div>
+            <div class="card-body p-0">
+                <table class="table mb-0">
+                    <thead>
+                        <tr><th>ID</th><th>Category</th><th>Status</th><th>Priority</th><th>Requester</th><th>Created</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for req in recent %}
+                        <tr>
+                            <td><a href="{% url 'requests:request_detail' req.pk %}">{{ req.request_number|default:req.pk }}</a></td>
+                            <td>{{ req.category.name }}</td>
+                            <td><span class="badge badge-status badge-{{ req.status|slugify }}">{{ req.get_status_display }}</span></td>
+                            <td><span class="badge badge-priority badge-priority-{{ req.priority|slugify }}">{{ req.get_priority_display }}</span></td>
+                            <td>{{ req.requester.get_full_name }}</td>
+                            <td>{{ req.created_at|date:"M d, Y" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="6" class="text-center">No requests yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
