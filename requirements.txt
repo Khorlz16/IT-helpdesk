@@ -5,3 +5,4 @@ whitenoise
 Pillow
 dj-database-url
 python-dotenv
+argon2-cffi
