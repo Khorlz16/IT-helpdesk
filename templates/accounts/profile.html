@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-
 {% block content %}
 <div class="row g-4 align-items-start">
     <div class="col-lg-5">
@@ -7,27 +6,26 @@
             <div class="profile-header">
                 <div class="d-flex align-items-center gap-3">
                     {% if profile_user.avatar %}
-                        <img src="{{ profile_user.avatar.url }}" alt="{{ profile_user.get_full_name|default:profile_user.pzc }}" class="profile-avatar-image">
+                        <img src="{{ profile_user.avatar.url }}" alt="{{ profile_user.get_full_name|default:profile_user.pzc }}" class="profile-avatar-img">
                     {% else %}
-                        <div class="profile-avatar">{{ profile_user.get_full_name|default:profile_user.pzc|slice:':1'|upper }}</div>
+                        <div class="profile-avatar">{{ profile_user.get_full_name|default:profile_user.pzc|slice:":1"|upper }}</div>
                     {% endif %}
                     <div>
                         <h3 class="mb-1">{{ profile_user.get_full_name|default:profile_user.pzc }}</h3>
-                        <span class="user-role-badge"><i class="fas fa-user-tag me-1"></i>{{ profile_user.role_label }}</span>
+                        <span class="user-role-badge"><i class="fas fa-user-tag me-1"></i>{{ profile_user.get_role_display }}</span>
                     </div>
                 </div>
             </div>
             <div class="card-body p-4">
                 <div class="detail-row"><div class="detail-label"><i class="fas fa-id-card me-2"></i>PZC</div><div>{{ profile_user.pzc }}</div></div>
                 <div class="detail-row"><div class="detail-label"><i class="fas fa-user me-2"></i>Username</div><div>{{ profile_user.username }}</div></div>
-                <div class="detail-row"><div class="detail-label"><i class="fas fa-building me-2"></i>Department</div><div>{{ profile_user.department|default:"Not set" }}</div></div>
-                <div class="detail-row"><div class="detail-label"><i class="fas fa-code-branch me-2"></i>Branch</div><div>{{ profile_user.branch|default:"Not set" }}</div></div>
-                <div class="detail-row"><div class="detail-label"><i class="fas fa-briefcase me-2"></i>Job Title</div><div>{{ profile_user.job_title|default:"Not set" }}</div></div>
-                <div class="detail-row"><div class="detail-label"><i class="fas fa-envelope me-2"></i>Company Email</div><div>{{ profile_user.company_email|default:"Not set" }}</div></div>
+                <div class="detail-row"><div class="detail-label"><i class="fas fa-building me-2"></i>Department</div><div>{{ profile_user.department|default:"—" }}</div></div>
+                <div class="detail-row"><div class="detail-label"><i class="fas fa-code-branch me-2"></i>Branch</div><div>{{ profile_user.branch|default:"—" }}</div></div>
+                <div class="detail-row"><div class="detail-label"><i class="fas fa-briefcase me-2"></i>Job Title</div><div>{{ profile_user.job_title|default:"—" }}</div></div>
+                <div class="detail-row"><div class="detail-label"><i class="fas fa-envelope me-2"></i>Company Email</div><div>{{ profile_user.company_email|default:"—" }}</div></div>
             </div>
         </div>
     </div>
-
     <div class="col-lg-7">
         {% if can_edit and form %}
         <div class="card profile-edit-card">
@@ -44,17 +42,10 @@
                         {% endif %}
                     </div>
                     {% endfor %}
-                    <div class="col-12 d-flex justify-content-end mt-3">
+                    <div class="col-12">
                         <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save Changes</button>
                     </div>
                 </form>
-            </div>
-        </div>
-        {% elif request.user.is_it_admin %}
-        <div class="card">
-            <div class="card-header"><i class="fas fa-info-circle me-2"></i>Profile Summary</div>
-            <div class="card-body p-4">
-                <p class="mb-0 text-muted">This profile is read-only for your current access level.</p>
             </div>
         </div>
         {% endif %}

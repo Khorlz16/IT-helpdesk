@@ -1674,3 +1674,36 @@ input.form-control, .input-group .form-control {
     background: #E5E7EB;
     color: #374151;
 }
+
+/* Modern form fields */
+.form-control, .form-select, textarea.form-control {
+    border-radius: 10px;
+    border: 1px solid var(--pz-border, #E5E7EB);
+    padding: 10px 14px;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    background-color: #FFFFFF;
+    width: 100%;
+}
+.form-control:focus, .form-select:focus, textarea.form-control:focus {
+    border-color: var(--pz-blue, #1E3A8A);
+    box-shadow: 0 0 0 3px rgba(30,58,138,0.1);
+    outline: none;
+}
+textarea.form-control {
+    min-height: 100px;
+    resize: vertical;
+}
+.input-group-text {
+    background: #F8FAFC;
+    border: 1px solid var(--pz-border, #E5E7EB);
+    border-radius: 10px 0 0 10px;
+}
+.input-group .form-control {
+    border-radius: 0 10px 10px 0;
+}
+
+/* Hide textarea resize handle */
+textarea.form-control {
+    resize: none !important;
+}

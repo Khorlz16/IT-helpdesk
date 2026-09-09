@@ -1,17 +1,17 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% block content %}
 <h2 class="dashboard-title"><i class="fas fa-list-alt"></i> Requests</h2>
 <p class="dashboard-subtitle">Browse and manage IT requests</p>
 
 <div class="card mb-4">
     <div class="card-body">
-        <form method="get" action="{% url 'requests:request_list' %}" class="request-filter-form">
-            <div class="row g-2 align-items-end request-filter-row">
+        <form method="get" action="{% url 'requests:request_list' %}">
+            <div class="row g-2 align-items-end">
                 <div class="col-6 col-md-4 col-lg-2">
                     <label for="q" class="form-label">Search</label>
                     <div class="input-group input-group-sm">
                         <span class="input-group-text"><i class="fas fa-search"></i></span>
-                        <input type="text" name="q" id="q" class="form-control form-control-sm" placeholder="Search..." value="{{ q }}">
+                        <input type="text" name="q" id="q" class="form-control" placeholder="Search..." value="{{ q }}">
                     </div>
                 </div>
                 <div class="col-6 col-md-4 col-lg-2">
@@ -82,12 +82,12 @@
                 <tbody>
                     {% for req in requests %}
                     <tr>
-                        <td><a href="{% url 'requests:request_detail' req.pk %}">{{ req.request_number|default:req.pk }}</a></td>
+                        <td><a href="{% url 'requests:request_detail' req.pk %}">REQ-{{ req.id }}</a></td>
                         <td>{{ req.category.name }}</td>
                         <td><span class="badge badge-status badge-{{ req.status|slugify }}">{{ req.get_status_display }}</span></td>
                         <td><span class="badge badge-priority badge-priority-{{ req.priority|slugify }}">{{ req.get_priority_display }}</span></td>
                         <td>{{ req.requester.get_full_name }}</td>
-                        <td>{{ req.assigned_to.get_full_name|default:"" }}</td>
+                        <td>{{ req.assigned_to.get_full_name|default:"—" }}</td>
                         <td>{{ req.created_at|date:"M d, Y" }}</td>
                     </tr>
                     {% empty %}

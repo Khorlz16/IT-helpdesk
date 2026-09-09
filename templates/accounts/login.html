@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% block content %}
 <div class="login-container">
     <div class="login-card">
@@ -8,6 +8,15 @@
             <h2 class="login-title">IT Helpdesk</h2>
             <p class="text-muted">Sign in</p>
         </div>
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        {% endif %}
         <form method="post">
             {% csrf_token %}
             <div class="mb-3">
@@ -35,10 +44,8 @@
 document.getElementById('toggle-password').addEventListener('click', function() {
     const pwd = document.getElementById('password-field');
     const icon = this.querySelector('i');
-    // Show password
     pwd.type = 'text';
     icon.classList.replace('fa-eye', 'fa-eye-slash');
-    // Auto-hide after 1 second
     setTimeout(() => {
         pwd.type = 'password';
         icon.classList.replace('fa-eye-slash', 'fa-eye');
