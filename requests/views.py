@@ -72,8 +72,7 @@ def dashboard(request):
 def create_request(request):
     if request.method == 'POST':
         form = RequestForm(request.POST)
-        item_formset = RequestItemFormSet(request.POST, prefix='items')
-        if form.is_valid() and item_formset.is_valid():
+        if form.is_valid():
             category = form.cleaned_data['category']
             description = form.cleaned_data['description']
             requested_priority = form.cleaned_data['requested_priority']
@@ -83,19 +82,10 @@ def create_request(request):
                 description=description,
                 requested_priority=requested_priority,
             )
-            for item_form in item_formset:
-                if item_form.cleaned_data and not item_form.cleaned_data.get('DELETE', False):
-                    item = item_form.save(commit=False)
-                    item.request = req
-                    item.save()
             return redirect('requests:request_detail', pk=req.pk)
     else:
         form = RequestForm()
-        item_formset = RequestItemFormSet(prefix='items')
-    return render(request, 'requests/create_request.html', {
-        'form': form,
-        'item_formset': item_formset,
-    })
+    return render(request, 'requests/create_request.html', {'form': form})
 
 @login_required
 def request_list(request):
